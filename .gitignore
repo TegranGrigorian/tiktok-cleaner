@@ -1,3 +1,4 @@
 /target
 releases/*
 test_tt_det
+src\tiktok_detection\metadata_read\python_examples
