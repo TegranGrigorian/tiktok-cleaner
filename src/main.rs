@@ -7,12 +7,12 @@ TikTok content with confidence-based categorization.
 
 ## Features
 
-- **🚀 Multithreaded Processing**: Parallel file analysis for optimal performance
-- **📱 Phone Filesystem Support**: Works with MTP/Android phone storage 
+- **Multithreaded Processing**: Parallel file analysis for optimal performance
+- **Phone Filesystem Support**: Works with MTP/Android phone storage 
 - **🧠 Intelligent Caching**: Avoids re-analyzing unchanged files
-- **📊 Confidence Scoring**: Categorizes files as confirmed, likely, possible, or unlikely TikTok
-- **📁 Smart Organization**: Automatically organizes detected files into confidence-based folders
-- **🔍 Multiple Detection Methods**: AIGC metadata, video IDs, dimensions, format analysis
+- **Confidence Scoring**: Categorizes files as confirmed, likely, possible, or unlikely TikTok
+- **Smart Organization**: Automatically organizes detected files into confidence-based folders
+- **Multiple Detection Methods**: AIGC metadata, video IDs, dimensions, format analysis
 
 ## Usage
 
@@ -56,7 +56,7 @@ use tiktok_cleaner::tiktok_detection::{test_runner::TestRunner, scanner::TikTokS
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = Command::new("TikTok Cleaner")
         .version("1.0")
-        .about("🚀 TikTok Detection and Organization Tool")
+        .about("TikTok Detection and Organization Tool")
         .arg(
             Arg::new("scan")
                 .long("scan")
@@ -89,7 +89,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         run_scanner(scan_path, move_files)?;
     } else {
         // Show help if no arguments provided
-        eprintln!("🚀 TikTok Detection and Organization Tool\n");
+        eprintln!("TikTok Detection and Organization Tool\n");
         eprintln!("Usage examples:");
         eprintln!("  # Preview scan of phone folder:");
         eprintln!("  cargo run -- --scan \"/run/user/1000/gvfs/mtp:host=SAMSUNG_SAMSUNG_Android_R5CW90Y5HRF/Internal storage/DCIM\"");
@@ -134,21 +134,21 @@ fn run_scanner(scan_path: &str, move_files: bool) -> Result<(), Box<dyn std::err
     let path = Path::new(scan_path);
     
     if !path.exists() {
-        eprintln!("❌ Scan folder not found: {}", path.display());
+        eprintln!("ERROR: Scan folder not found: {}", path.display());
         eprintln!("   Please ensure the path is correct and accessible");
         return Ok(());
     }
 
     if !path.is_dir() {
-        eprintln!("❌ Path is not a directory: {}", path.display());
+        eprintln!("ERROR: Path is not a directory: {}", path.display());
         return Ok(());
     }
 
-    println!("🚀 TikTok Detection and Organization Tool");
+    println!("TikTok Detection and Organization Tool");
     if move_files {
         println!("🔧 Mode: MOVE FILES");
     } else {
-        println!("👁️  Mode: PREVIEW (use --move to actually move files)");
+        println!("[PREVIEW] Mode: PREVIEW (use --move to actually move files)");
     }
     println!();
 
@@ -156,8 +156,8 @@ fn run_scanner(scan_path: &str, move_files: bool) -> Result<(), Box<dyn std::err
     let results = scanner.scan_folder_parallel(move_files)?;
 
     if move_files && (results.confirmed_tiktok + results.likely_tiktok + results.possible_tiktok) > 0 {
-        println!("\n✅ TikTok files have been organized into confidence-based folders!");
-        println!("📁 Check the 'tiktok_detection' folder in your scan directory");
+        println!("\nSUCCESS: TikTok files have been organized into confidence-based folders!");
+        println!("Check the 'tiktok_detection' folder in your scan directory");
     }
 
     Ok(())
@@ -182,7 +182,7 @@ fn run_scanner(scan_path: &str, move_files: bool) -> Result<(), Box<dyn std::err
 /// # Returns
 /// Comprehensive performance metrics including detection rates and specificity scores.
 fn run_test_experiment() -> Result<(), Box<dyn std::error::Error>> {
-    println!("🚀 TikTok Detection Algorithm - Test Experiment");
+    println!("TikTok Detection Algorithm - Test Experiment");
     println!("Running built-in test on sample files...\n");
 
     // Define paths to test sets
@@ -191,13 +191,13 @@ fn run_test_experiment() -> Result<(), Box<dyn std::error::Error>> {
 
     // Check if test folders exist
     if !tiktok_folder.exists() {
-        eprintln!("❌ TikTok test folder not found: {}", tiktok_folder.display());
+        eprintln!("ERROR: TikTok test folder not found: {}", tiktok_folder.display());
         eprintln!("   Please ensure the testsets are available");
         return Ok(());
     }
 
     if !not_tiktok_folder.exists() {
-        eprintln!("❌ Not-TikTok test folder not found: {}", not_tiktok_folder.display());
+        eprintln!("ERROR: Not-TikTok test folder not found: {}", not_tiktok_folder.display());
         eprintln!("   Please ensure the testsets are available");
         return Ok(());
     }

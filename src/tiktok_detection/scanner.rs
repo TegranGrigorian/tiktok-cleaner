@@ -56,12 +56,12 @@ impl TikTokScanner {
     }
 
     pub fn scan_folder(&mut self, move_files: bool) -> Result<ScanResults> {
-        println!("🔍 Scanning folder: {}", self.file_manager.get_base_path().display());
-        println!("📁 TikTok detection folder: {}", self.file_manager.get_tiktok_folder().display());
+        println!("Scanning folder: {}", self.file_manager.get_base_path().display());
+        println!("TikTok detection folder: {}", self.file_manager.get_tiktok_folder().display());
 
         let (cache_count, last_updated) = self.file_manager.get_cache_stats();
         if cache_count > 0 {
-            println!("📋 Loaded cache with {} previously scanned files (last updated: {})", cache_count, last_updated);
+            println!("Loaded cache with {} previously scanned files (last updated: {})", cache_count, last_updated);
         }
 
         let mut results = ScanResults {
@@ -78,7 +78,7 @@ impl TikTokScanner {
         let media_files = self.get_media_files()?;
         results.total_files = media_files.len();
 
-        println!("📸 Found {} media files to analyze\n", media_files.len());
+        println!("Found {} media files to analyze\n", media_files.len());
 
         for (i, file_path) in media_files.iter().enumerate() {
             println!("[{}/{}] Analyzing: {}", i + 1, media_files.len(), file_path.file_name().unwrap().to_string_lossy());
@@ -87,7 +87,7 @@ impl TikTokScanner {
             match self.file_manager.should_skip_file(file_path) {
                 Ok((should_skip, _cached_confidence)) => {
                     if should_skip {
-                        println!("  ⏭️  Skipped (cached as non-TikTok)");
+                        println!("  Skipped (cached as non-TikTok)");
                         results.skipped_cached += 1;
                         continue;
                     }
@@ -103,10 +103,10 @@ impl TikTokScanner {
 
             // Display result
             let (icon, category) = match confidence {
-                70.. => { results.confirmed_tiktok += 1; ("🔴", "CONFIRMED") },
-                40..=69 => { results.likely_tiktok += 1; ("🟡", "LIKELY") },
-                20..=39 => { results.possible_tiktok += 1; ("🔵", "POSSIBLE") },
-                _ => { results.unlikely_tiktok += 1; ("⚪", "UNLIKELY") },
+                70.. => { results.confirmed_tiktok += 1; ("[CONFIRMED]", "CONFIRMED") },
+                40..=69 => { results.likely_tiktok += 1; ("[LIKELY]", "LIKELY") },
+                20..=39 => { results.possible_tiktok += 1; ("[POSSIBLE]", "POSSIBLE") },
+                _ => { results.unlikely_tiktok += 1; ("[UNLIKELY]", "UNLIKELY") },
             };
 
             println!("  {} {} TikTok (Confidence: {}/100)", icon, category, confidence);
@@ -129,14 +129,14 @@ impl TikTokScanner {
                             results.moved_files.push(new_path.to_string_lossy().to_string());
                         }
                         Err(e) => {
-                            eprintln!("     ❌ Failed to move file: {}", e);
+                            eprintln!("     ERROR: Failed to move file: {}", e);
                         }
                     }
                 } else {
                     // Just copy for preview mode
                     match self.file_manager.copy_file_to_tiktok_folder(file_path, confidence) {
                         Ok(_) => {
-                            println!("     📋 Would move to: {}/", 
+                            println!("     INFO: Would move to: {}/", 
                                      match confidence {
                                          70.. => "confirmed",
                                          40..=69 => "likely",
@@ -144,14 +144,14 @@ impl TikTokScanner {
                                      });
                         }
                         Err(e) => {
-                            eprintln!("     ❌ Error: {}", e);
+                            eprintln!("     ERROR: {}", e);
                         }
                     }
                 }
             } else {
                 // Not TikTok - add to cache
                 if let Err(e) = self.file_manager.add_to_cache(file_path, confidence, false) {
-                    eprintln!("     ⚠️  Failed to cache file: {}", e);
+                    eprintln!("     WARNING: Failed to cache file: {}", e);
                 }
             }
             
@@ -176,12 +176,12 @@ impl TikTokScanner {
     /// # Returns
     /// Returns ScanResults containing statistics about the scan operation.
     pub fn scan_folder_parallel(&mut self, move_files: bool) -> Result<ScanResults> {
-        println!("🔍 Scanning folder (parallel): {}", self.file_manager.get_base_path().display());
-        println!("📁 TikTok detection folder: {}", self.file_manager.get_tiktok_folder().display());
+        println!("Scanning folder (parallel): {}", self.file_manager.get_base_path().display());
+        println!("TikTok detection folder: {}", self.file_manager.get_tiktok_folder().display());
 
         // Get all media files
         let media_files = self.get_media_files()?;
-        println!("📸 Found {} media files to analyze (using {} threads)\n", 
+        println!("Found {} media files to analyze (using {} threads)\n", 
                  media_files.len(), num_cpus::get());
 
         let mut results = ScanResults {
@@ -203,7 +203,7 @@ impl TikTokScanner {
             match self.file_manager.should_skip_file(file_path) {
                 Ok((should_skip, _cached_confidence)) => {
                     if should_skip {
-                        println!("  ⏭️  Skipped (cached as non-TikTok)");
+                        println!("  Skipped (cached as non-TikTok)");
                         results.skipped_cached += 1;
                     } else {
                         files_to_analyze.push(file_path);
@@ -215,7 +215,7 @@ impl TikTokScanner {
             }
         }
 
-        println!("\n🔬 Analyzing {} files in parallel...\n", files_to_analyze.len());
+        println!("\nAnalyzing {} files in parallel...\n", files_to_analyze.len());
 
         // Perform parallel analysis on files that need it
         let analysis_results: Vec<_> = files_to_analyze
@@ -231,7 +231,7 @@ impl TikTokScanner {
             .collect();
 
         // Process results sequentially to handle file operations safely
-        println!("\n📋 Processing results and organizing files...\n");
+        println!("\nProcessing results and organizing files...\n");
         for (file_path, metadata_result) in analysis_results {
             match metadata_result {
                 Ok(metadata) => {
@@ -239,10 +239,10 @@ impl TikTokScanner {
 
                     // Categorize result
                     let (icon, category) = match confidence {
-                        70.. => { results.confirmed_tiktok += 1; ("🔴", "CONFIRMED") },
-                        40..=69 => { results.likely_tiktok += 1; ("🟡", "LIKELY") },
-                        20..=39 => { results.possible_tiktok += 1; ("🔵", "POSSIBLE") },
-                        _ => { results.unlikely_tiktok += 1; ("⚪", "UNLIKELY") },
+                        70.. => { results.confirmed_tiktok += 1; ("", "CONFIRMED") },
+                        40..=69 => { results.likely_tiktok += 1; ("", "LIKELY") },
+                        20..=39 => { results.possible_tiktok += 1; ("", "POSSIBLE") },
+                        _ => { results.unlikely_tiktok += 1; ("", "UNLIKELY") },
                     };
 
                     println!("📄 {}: {} {} TikTok (Confidence: {}/100)", 
@@ -267,14 +267,14 @@ impl TikTokScanner {
                                     results.moved_files.push(new_path.to_string_lossy().to_string());
                                 }
                                 Err(e) => {
-                                    eprintln!("     ❌ Failed to move file: {}", e);
+                                    eprintln!("     ERROR: Failed to move file: {}", e);
                                 }
                             }
                         } else {
                             // Just preview mode
                             match self.file_manager.copy_file_to_tiktok_folder(file_path, confidence) {
                                 Ok(_) => {
-                                    println!("     📋 Would move to: {}/", 
+                                    println!("     INFO: Would move to: {}/", 
                                              match confidence {
                                                  70.. => "confirmed",
                                                  40..=69 => "likely",
@@ -282,19 +282,19 @@ impl TikTokScanner {
                                              });
                                 }
                                 Err(e) => {
-                                    eprintln!("     ❌ Error: {}", e);
+                                    eprintln!("     ERROR: {}", e);
                                 }
                             }
                         }
                     } else {
                         // Not TikTok - add to cache
                         if let Err(e) = self.file_manager.add_to_cache(file_path, confidence, false) {
-                            eprintln!("     ⚠️  Failed to cache file: {}", e);
+                            eprintln!("     WARNING: Failed to cache file: {}", e);
                         }
                     }
                 }
                 Err(e) => {
-                    eprintln!("❌ Error analyzing {}: {}", 
+                    eprintln!("ERROR: Error analyzing {}: {}", 
                              file_path.file_name().unwrap().to_string_lossy(), e);
                 }
             }
@@ -315,9 +315,9 @@ impl TikTokScanner {
                 // Note: In a real implementation, we'd track the file paths and confidence scores
                 // For now, we'll create the guide without specific file details
                 if let Err(e) = self.file_manager.create_phone_organization_guide(&detected_files) {
-                    eprintln!("⚠️  Could not create organization guide: {}", e);
+                    eprintln!("WARNING: Could not create organization guide: {}", e);
                 } else {
-                    println!("\n📱 Phone filesystem detected - organization guide created!");
+                    println!("\n[PHONE] Phone filesystem detected - organization guide created!");
                     println!("   Check /tmp/tiktok_phone_organization_guide.md for manual organization steps");
                 }
             }
@@ -373,15 +373,15 @@ impl TikTokScanner {
         println!("🎯 SCAN RESULTS SUMMARY");
         println!("{}", "=".repeat(50));
         println!("📁 Scanned folder: {}", self.file_manager.get_base_path().display());
-        println!("📊 Total files analyzed: {}", results.total_files);
+        println!("Total files analyzed: {}", results.total_files);
         if results.skipped_cached > 0 {
-            println!("⏭️  Files skipped (cached): {}", results.skipped_cached);
+            println!("Files skipped (cached): {}", results.skipped_cached);
         }
         println!();
-        println!("🔴 Confirmed TikTok: {}", results.confirmed_tiktok);
-        println!("🟡 Likely TikTok: {}", results.likely_tiktok);
-        println!("🔵 Possible TikTok: {}", results.possible_tiktok);
-        println!("⚪ Unlikely TikTok: {}", results.unlikely_tiktok);
+        println!("[CONFIRMED] TikTok: {}", results.confirmed_tiktok);
+        println!("[LIKELY] TikTok: {}", results.likely_tiktok);
+        println!("[POSSIBLE] TikTok: {}", results.possible_tiktok);
+        println!("[UNLIKELY] TikTok: {}", results.unlikely_tiktok);
         println!();
 
         let total_detected = results.confirmed_tiktok + results.likely_tiktok + results.possible_tiktok;
@@ -395,15 +395,15 @@ impl TikTokScanner {
                 println!("   • likely/ - {} files", results.likely_tiktok);
                 println!("   • possible/ - {} files", results.possible_tiktok);
             } else {
-                println!("👁️  Preview mode: No files were moved");
+                println!("[PREVIEW] Preview mode: No files were moved");
                 println!("   Run with --move to actually move the files");
             }
         } else {
-            println!("✅ No TikTok files detected");
+            println!("SUCCESS: No TikTok files detected");
         }
 
         println!();
         println!("💾 Cache updated: {}", self.file_manager.get_cache_stats().1);
-        println!("📋 Total cached non-TikTok files: {}", self.file_manager.get_cache_stats().0);
+        println!("Total cached non-TikTok files: {}", self.file_manager.get_cache_stats().0);
     }
 }
