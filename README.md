@@ -1,17 +1,17 @@
-# TikTok Cleaner 🚀
+# TikTok Cleaner
 
 A high-performance Rust application for detecting and organizing TikTok files from phone storage using advanced metadata analysis and intelligent caching.
 
-## ✨ Features
+## Features
 
-- **🚀 Multithreaded Processing**: Parallel file analysis using all available CPU cores
-- **📱 Phone Filesystem Support**: Works seamlessly with MTP/Android phone storage
-- **🧠 Intelligent Caching**: Avoids re-analyzing unchanged files for fast subsequent scans
-- **📊 Confidence Scoring**: Categorizes files as confirmed (70%+), likely (40-69%), possible (20-39%), or unlikely (<20%) TikTok
-- **📁 Smart Organization**: Automatically organizes detected files into confidence-based folders
-- **🔍 Advanced Detection**: Multiple detection methods including AIGC metadata, video IDs, dimensions, and format analysis
+- **Multithreaded Processing**: Parallel file analysis using all available CPU cores
+- **Phone Filesystem Support**: Works seamlessly with MTP/Android phone storage
+- **Intelligent Caching**: Avoids re-analyzing unchanged files for fast subsequent scans
+- **Confidence Scoring**: Categorizes files as confirmed (70%+), likely (40-69%), possible (20-39%), or unlikely (<20%) TikTok
+- **Smart Organization**: Automatically organizes detected files into confidence-based folders
+- **Advanced Detection**: Multiple detection methods including AIGC metadata, video IDs, dimensions, and format analysis
 
-## 🎯 Detection Algorithm
+## Detection Algorithm
 
 The algorithm analyzes multiple characteristics to identify TikTok content:
 
@@ -26,7 +26,7 @@ The algorithm analyzes multiple characteristics to identify TikTok content:
 - **Content Hashes**: Recognizes TikTok-specific video encoding signatures
 - **Dimension Analysis**: Identifies portrait video characteristics
 
-## 🚀 Usage
+## Usage
 
 ### Quick Start
 
@@ -58,14 +58,14 @@ cargo run --bin tiktok-cleaner -- --scan "/run/user/1000/gvfs/mtp:host=SAMSUNG_*
 cargo run --bin tiktok-cleaner -- --scan "/home/user/Pictures" --move
 ```
 
-## 📊 Performance
+## Performance
 
 - **Multithreaded**: Uses all available CPU cores for parallel analysis
 - **Cached**: Skips previously analyzed files that haven't changed
 - **Memory Efficient**: Streams file analysis without loading entire files into memory
 - **Phone Optimized**: Handles MTP filesystem limitations gracefully
 
-## 📁 Output Organization
+## Output Organization
 
 Detected TikTok files are organized into confidence-based folders:
 
@@ -78,7 +78,7 @@ your_scan_folder/
 └── .tiktok_cache.json # Intelligent caching file
 ```
 
-## 🧪 Test Results
+## Test Results
 
 The algorithm has been validated on curated test datasets:
 
@@ -86,7 +86,7 @@ The algorithm has been validated on curated test datasets:
 - **Specificity**: 100% - correctly rejects all non-TikTok content
 - **Accuracy**: High precision with minimal false positives
 
-## 🛠️ Installation
+## Installation
 
 1. **Install Rust** (if not already installed):
    ```bash
@@ -105,7 +105,7 @@ The algorithm has been validated on curated test datasets:
    cargo run --bin tiktok-cleaner -- --help
    ```
 
-## 📋 Requirements
+## Requirements
 
 - **Rust 2021 Edition** or later
 - **Dependencies**: All managed by Cargo
@@ -119,43 +119,68 @@ The algorithm has been validated on curated test datasets:
   - `chrono` - Timestamp management
   - `md5` - Hash verification
 
-## 🔧 Architecture
+## Project Structure
 
 ```
 tiktok-cleaner/
 ├── src/
 │   ├── main.rs                    # CLI interface and main entry point
 │   ├── lib.rs                     # Library exports
+│   ├── bin/                       # Additional binary utilities
+│   │   └── debug_image.rs         # Image debugging utility
 │   └── tiktok_detection/
-│       ├── mod.rs                 # Module declarations
+│       ├── mod.rs                 # Module declarations and exports
 │       ├── scanner.rs             # Main scanning engine with multithreading
+│       ├── tiktok_photo_det.rs    # Image-specific TikTok detection algorithms
+│       ├── tiktok_video_det.rs    # Video-specific TikTok detection algorithms
+│       ├── test_runner.rs         # Test experiment runner and validation
 │       ├── metadata_read/         # Metadata extraction and analysis
-│       ├── tiktok_photo_det.rs    # Image-specific TikTok detection
-│       ├── tiktok_video_det.rs    # Video-specific TikTok detection
-│       ├── test_runner.rs         # Test experiment runner
-│       └── file_util/             # File management and caching
+│       │   ├── mod.rs             # Metadata module exports
+│       │   ├── metadata_manager.rs # Core metadata reading and analysis
+│       │   └── python_examples/   # Python reference implementations
+│       └── file_util/             # File management and caching utilities
 │           ├── file_manager.rs    # Enhanced caching and file operations
 │           └── folder_manager.rs  # Folder organization utilities
+├── Cargo.toml                     # Project dependencies and metadata
+├── Cargo.lock                     # Dependency version lock file
+└── README.md                      # This documentation file
 ```
 
-## 📈 Changelog
+### Key Components
+
+#### Core Modules
+- **main.rs**: Command-line interface and application entry point
+- **scanner.rs**: Multi-threaded scanning engine that coordinates all detection methods
+- **tiktok_photo_det.rs**: Specialized image analysis for TikTok screenshots
+- **tiktok_video_det.rs**: Video metadata analysis for TikTok content
+
+#### Utilities
+- **metadata_manager.rs**: Handles EXIF, AIGC, and other metadata extraction
+- **file_manager.rs**: Manages caching, file operations, and phone filesystem compatibility
+- **folder_manager.rs**: Organizes detected files into confidence-based folders
+- **test_runner.rs**: Runs validation experiments and performance analysis
+
+#### Binary Tools
+- **debug_image.rs**: Standalone utility for debugging image detection
+
+## Changelog
 
 ### v0.1.0 - Enhanced Performance Release
-- ✅ **Multithreaded Processing**: Parallel file analysis using rayon
-- ✅ **Enhanced Caching**: File metadata tracking with change detection
-- ✅ **Comprehensive Documentation**: Detailed code documentation throughout
-- ✅ **Phone Compatibility**: Robust MTP filesystem support
-- ✅ **Performance Optimization**: Thread count optimization based on CPU cores
+- **Multithreaded Processing**: Parallel file analysis using rayon
+- **Enhanced Caching**: File metadata tracking with change detection
+- **Comprehensive Documentation**: Detailed code documentation throughout
+- **Phone Compatibility**: Robust MTP filesystem support
+- **Performance Optimization**: Thread count optimization based on CPU cores
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🎯 Use Cases
+## Use Cases
 
 - **Phone Cleanup**: Organize TikTok screenshots cluttering your phone storage
 - **Digital Organization**: Separate TikTok content from personal photos
