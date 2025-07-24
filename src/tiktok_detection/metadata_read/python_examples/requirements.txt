@@ -1,0 +1,14 @@
+# Optional dependencies for enhanced metadata extraction
+# Install with: pip install -r requirements.txt
+
+# For image EXIF data
+Pillow>=9.0.0
+
+# For audio/video metadata
+mutagen>=1.45.0
+
+# For video metadata using Python wrapper
+ffmpeg-python>=0.2.0
+
+# For enhanced EXIF reading
+ExifRead>=2.3.0

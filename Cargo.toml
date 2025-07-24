@@ -1,0 +1,28 @@
+[package]
+name = "tiktok-cleaner"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance TikTok detection and organization tool with multithreaded processing"
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT"
+keywords = ["tiktok", "detection", "organization", "metadata", "phone-storage"]
+categories = ["command-line-utilities", "multimedia", "filesystem"]
+readme = "README.md"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+regex = "1.0"
+sha2 = "0.10"
+md5 = "0.7"
+image = { version = "0.24", features = ["webp"] }
+walkdir = "2.0"
+anyhow = "1.0"
+imagesize = "0.12"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.0", features = ["derive"] }
+rayon = "1.8"  # For parallel processing
+num_cpus = "1.0"  # For optimal thread count
+
+[lib]
+path = "src/lib.rs"
