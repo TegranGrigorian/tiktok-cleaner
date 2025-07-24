@@ -1,7 +1,10 @@
 # TikTok Cleaner
 
 A high-performance Rust application for detecting and organizing TikTok files from phone storage using advanced metadata analysis and intelligent caching.
-
+## Requirements
+1. program only works with android
+2. currently only works with linux :(
+    
 ## Features
 
 - **Multithreaded Processing**: Parallel file analysis using all available CPU cores
