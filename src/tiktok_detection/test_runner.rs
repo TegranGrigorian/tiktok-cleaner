@@ -31,7 +31,7 @@ impl TestRunner {
     }
 
     pub fn run_experiment(&self, tiktok_folder: &Path, not_tiktok_folder: &Path) -> Result<()> {
-        println!("🧪 TIKTOK DETECTION EXPERIMENT");
+        println!(" TIKTOK DETECTION EXPERIMENT");
         println!("{}", "=".repeat(80));
         println!("Testing Rust TikTok detection algorithm on test datasets...\n");
 
@@ -89,11 +89,11 @@ impl TestRunner {
                 Err(e) => eprintln!("Error analyzing video {}: {}", video_path.display(), e),
             }
         }
-        println!("🎥 Found {} video files", detected_videos.len());
+        println!(" Found {} video files", detected_videos.len());
         all_files.append(&mut detected_videos);
 
         let total_files = all_files.len();
-        println!("📁 Total media files: {}\n", total_files);
+        println!("Total media files: {}\n", total_files);
 
         // Categorize results
         let mut confirmed_tiktok = 0;
@@ -103,13 +103,13 @@ impl TestRunner {
 
         // Process each file and show results
         for (i, file) in all_files.iter().enumerate() {
-            println!("[{}/{}] 📄 {}", i + 1, total_files, file.filename);
+            println!("[{}/{}] {}", i + 1, total_files, file.filename);
             
             let confidence_icon = match file.tiktok_analysis.confidence_score {
-                70.. => { confirmed_tiktok += 1; "🔴" },
-                40..=69 => { likely_tiktok += 1; "🟡" },
-                14..=39 => { possible_tiktok += 1; "🔵" },
-                _ => { unlikely_tiktok += 1; "⚪" },
+                70.. => { confirmed_tiktok += 1; "" },
+                40..=69 => { likely_tiktok += 1; "" },
+                14..=39 => { possible_tiktok += 1; "" },
+                _ => { unlikely_tiktok += 1; "" },
             };
 
             println!("  {} {} (Confidence: {}/100)", confidence_icon, file.tiktok_analysis.verdict, file.tiktok_analysis.confidence_score);
@@ -130,12 +130,12 @@ impl TestRunner {
         }
 
         // Folder summary
-        println!("📊 {} SUMMARY:", folder_name.to_uppercase());
+        println!(" {} SUMMARY:", folder_name.to_uppercase());
         println!("{}", "-".repeat(40));
-        println!("🔴 High Confidence TikTok: {}", confirmed_tiktok);
-        println!("🟡 Likely TikTok: {}", likely_tiktok);
-        println!("🔵 Possible TikTok: {}", possible_tiktok);
-        println!("⚪ Unlikely TikTok: {}", unlikely_tiktok);
+        println!(" High Confidence TikTok: {}", confirmed_tiktok);
+        println!(" Likely TikTok: {}", likely_tiktok);
+        println!(" Possible TikTok: {}", possible_tiktok);
+        println!(" Unlikely TikTok: {}", unlikely_tiktok);
 
         Ok(TestResults {
             folder_name: folder_name.to_string(),
@@ -149,7 +149,7 @@ impl TestRunner {
     }
 
     fn generate_experiment_report(&self, tiktok_results: &TestResults, not_tiktok_results: &TestResults) {
-        println!("\n🎯 EXPERIMENT RESULTS SUMMARY");
+        println!("\n EXPERIMENT RESULTS SUMMARY");
         println!("{}", "=".repeat(80));
 
         // Overall statistics
@@ -159,7 +159,7 @@ impl TestRunner {
         let total_possible = tiktok_results.possible_tiktok + not_tiktok_results.possible_tiktok;
         let total_unlikely = tiktok_results.unlikely_tiktok + not_tiktok_results.unlikely_tiktok;
 
-        println!("\n📊 PERFORMANCE ANALYSIS:");
+        println!("\n PERFORMANCE ANALYSIS:");
         println!("{}", "-".repeat(40));
 
         // Test accuracy on TikTok folder (should detect most as TikTok)
@@ -174,29 +174,29 @@ impl TestRunner {
             not_tiktok_results.total_files as f64
         ) * 100.0;
 
-        println!("🎯 TikTok Detection Rate: {:.1}% ({}/{} in TikTok folder)", 
+        println!(" TikTok Detection Rate: {:.1}% ({}/{} in TikTok folder)", 
                  tiktok_detection_rate, 
                  tiktok_results.confirmed_tiktok + tiktok_results.likely_tiktok,
                  tiktok_results.total_files);
 
-        println!("🎯 Specificity Rate: {:.1}% ({}/{} correctly identified as non-TikTok)", 
+        println!(" Specificity Rate: {:.1}% ({}/{} correctly identified as non-TikTok)", 
                  specificity_rate,
                  not_tiktok_results.unlikely_tiktok,
                  not_tiktok_results.total_files);
 
         // Detailed breakdown
-        println!("\n📁 DETAILED BREAKDOWN:");
+        println!("\n DETAILED BREAKDOWN:");
         println!("{}", "-".repeat(40));
         
-        println!("\n🟢 {} ({} files):", tiktok_results.folder_name, tiktok_results.total_files);
-        println!("   🔴 High Confidence TikTok: {}", tiktok_results.confirmed_tiktok);
-        println!("   🟡 Likely TikTok: {}", tiktok_results.likely_tiktok);
-        println!("   🔵 Possible TikTok: {}", tiktok_results.possible_tiktok);
-        println!("   ⚪ Unlikely TikTok: {}", tiktok_results.unlikely_tiktok);
+        println!("\n {} ({} files):", tiktok_results.folder_name, tiktok_results.total_files);
+        println!("    High Confidence TikTok: {}", tiktok_results.confirmed_tiktok);
+        println!("    Likely TikTok: {}", tiktok_results.likely_tiktok);
+        println!("    Possible TikTok: {}", tiktok_results.possible_tiktok);
+        println!("    Unlikely TikTok: {}", tiktok_results.unlikely_tiktok);
 
         // Show high-confidence TikTok files from TikTok folder
         if tiktok_results.confirmed_tiktok > 0 {
-            println!("\n   🎯 Successfully Detected TikTok Files:");
+            println!("\n    Successfully Detected TikTok Files:");
             for file in &tiktok_results.files {
                 if file.tiktok_analysis.confidence_score >= 70 {
                     println!("     • {} ({})", file.filename, file.tiktok_analysis.confidence_score);
@@ -204,15 +204,15 @@ impl TestRunner {
             }
         }
 
-        println!("\n🔴 {} ({} files):", not_tiktok_results.folder_name, not_tiktok_results.total_files);
-        println!("   🔴 High Confidence TikTok: {}", not_tiktok_results.confirmed_tiktok);
-        println!("   🟡 Likely TikTok: {}", not_tiktok_results.likely_tiktok);
-        println!("   🔵 Possible TikTok: {}", not_tiktok_results.possible_tiktok);
-        println!("   ⚪ Unlikely TikTok: {}", not_tiktok_results.unlikely_tiktok);
+        println!("\n {} ({} files):", not_tiktok_results.folder_name, not_tiktok_results.total_files);
+        println!("    High Confidence TikTok: {}", not_tiktok_results.confirmed_tiktok);
+        println!("    Likely TikTok: {}", not_tiktok_results.likely_tiktok);
+        println!("    Possible TikTok: {}", not_tiktok_results.possible_tiktok);
+        println!("    Unlikely TikTok: {}", not_tiktok_results.unlikely_tiktok);
 
         // Show false positives (non-TikTok files detected as TikTok)
         if not_tiktok_results.confirmed_tiktok > 0 || not_tiktok_results.likely_tiktok > 0 {
-            println!("\n   ⚠️  False Positives (incorrectly detected as TikTok):");
+            println!("\n     False Positives (incorrectly detected as TikTok):");
             for file in &not_tiktok_results.files {
                 if file.tiktok_analysis.confidence_score >= 40 {
                     println!("     • {} ({}) - Evidence: {}", 
@@ -223,33 +223,33 @@ impl TestRunner {
             }
         }
 
-        println!("\n🎯 OVERALL EXPERIMENT RESULTS:");
+        println!("\n OVERALL EXPERIMENT RESULTS:");
         println!("{}", "-".repeat(40));
-        println!("🔴 Total High Confidence TikTok: {}", total_confirmed);
-        println!("🟡 Total Likely TikTok: {}", total_likely);
-        println!("🔵 Total Possible TikTok: {}", total_possible);
-        println!("⚪ Total Unlikely TikTok: {}", total_unlikely);
+        println!(" Total High Confidence TikTok: {}", total_confirmed);
+        println!(" Total Likely TikTok: {}", total_likely);
+        println!(" Total Possible TikTok: {}", total_possible);
+        println!(" Total Unlikely TikTok: {}", total_unlikely);
 
         if total_files > 0 {
             let overall_detection_rate = ((total_confirmed + total_likely) as f64 / total_files as f64) * 100.0;
-            println!("\n📊 Overall Detection Rate: {:.1}% files flagged as likely TikTok", overall_detection_rate);
+            println!("\n Overall Detection Rate: {:.1}% files flagged as likely TikTok", overall_detection_rate);
         }
 
         // Algorithm effectiveness summary
-        println!("\n🚀 ALGORITHM EFFECTIVENESS:");
+        println!("\n ALGORITHM EFFECTIVENESS:");
         println!("{}", "-".repeat(40));
-        println!("✅ Sensitivity (detecting TikTok files): {:.1}%", tiktok_detection_rate);
-        println!("✅ Specificity (rejecting non-TikTok files): {:.1}%", specificity_rate);
+        println!(" Sensitivity (detecting TikTok files): {:.1}%", tiktok_detection_rate);
+        println!(" Specificity (rejecting non-TikTok files): {:.1}%", specificity_rate);
         
         if tiktok_detection_rate > 80.0 && specificity_rate > 80.0 {
-            println!("🏆 EXCELLENT: Algorithm performs very well on both metrics!");
+            println!(" EXCELLENT: Algorithm performs very well on both metrics!");
         } else if tiktok_detection_rate > 60.0 && specificity_rate > 60.0 {
-            println!("👍 GOOD: Algorithm shows solid performance");
+            println!(" GOOD: Algorithm shows solid performance");
         } else {
-            println!("⚠️  NEEDS IMPROVEMENT: Algorithm may need tuning");
+            println!("  NEEDS IMPROVEMENT: Algorithm may need tuning");
         }
 
-        println!("\n✅ Experiment complete! Rust implementation successfully mimics Python behavior.");
+        println!("\n Experiment complete! Rust implementation successfully mimics Python behavior.");
     }
 }
 

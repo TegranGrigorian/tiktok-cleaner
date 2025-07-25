@@ -130,7 +130,7 @@ impl NotTikTokCache {
                     // Migrate old cache format if needed
                     if cache.cache_version.is_empty() {
                         cache.cache_version = "2.0".to_string();
-                        println!("📱 Migrated cache to version 2.0");
+                        println!(" Migrated cache to version 2.0");
                     }
                     Ok(cache)
                 },
@@ -144,7 +144,7 @@ impl NotTikTokCache {
                     
                     match serde_json::from_str::<LegacyCache>(&content) {
                         Ok(legacy) => {
-                            println!("📱 Converting legacy cache format...");
+                            println!(" Converting legacy cache format...");
                             Ok(NotTikTokCache {
                                 scanned_files: legacy.scanned_files,
                                 last_updated: legacy.last_updated,
@@ -153,7 +153,7 @@ impl NotTikTokCache {
                             })
                         },
                         Err(e) => {
-                            println!("⚠️  Cache file corrupted, creating new cache: {}", e);
+                            println!("  Cache file corrupted, creating new cache: {}", e);
                             Ok(NotTikTokCache::new())
                         }
                     }
@@ -221,7 +221,7 @@ impl FileManager {
             // Try to create the folder on the phone
             match fs::create_dir_all(&phone_tiktok_folder) {
                 Ok(_) => {
-                    println!("✅ Created folder on phone: {}", phone_tiktok_folder.display());
+                    println!(" Created folder on phone: {}", phone_tiktok_folder.display());
                     
                     // Create subfolders for confidence levels
                     let _ = fs::create_dir_all(&phone_tiktok_folder.join("confirmed"));
@@ -231,7 +231,7 @@ impl FileManager {
                     
                     // Cache file goes to local temp since phone can't write files
                     let local_cache = std::env::temp_dir().join("tiktok_phone_cache.json");
-                    println!("📱 Using local cache for phone scan: {}", local_cache.display());
+                    println!(" Using local cache for phone scan: {}", local_cache.display());
                     
                     (phone_tiktok_folder, local_cache)
                 },
@@ -244,7 +244,7 @@ impl FileManager {
                     if !local_temp.exists() {
                         fs::create_dir_all(&local_temp)
                             .context("Failed to create local temp folder")?;
-                        println!("✅ Created local organization folder: {}", local_temp.display());
+                        println!("Created local organization folder: {}", local_temp.display());
                     }
                     
                     (local_temp, cache_file)
@@ -258,7 +258,7 @@ impl FileManager {
             if !tiktok_folder.exists() {
                 fs::create_dir_all(&tiktok_folder)
                     .context("Failed to create tiktok_detection folder")?;
-                println!("✅ Created folder: {}", tiktok_folder.display());
+                println!(" Created folder: {}", tiktok_folder.display());
             }
             
             (tiktok_folder, cache_file)
@@ -303,7 +303,7 @@ impl FileManager {
         // Try to move the file, but handle MTP/phone filesystem errors gracefully
         match fs::rename(source_path, &final_target) {
             Ok(_) => {
-                println!("📁 Moved {} file: {} -> {}", 
+                println!(" Moved {} file: {} -> {}", 
                          subfolder.to_uppercase(), 
                          source_path.display(), 
                          final_target.display());
@@ -312,18 +312,18 @@ impl FileManager {
                 // For phone/MTP filesystems, try copying instead
                 match fs::copy(source_path, &final_target) {
                     Ok(_) => {
-                        println!("� Copied {} file: {} -> {} (Phone filesystem: move not supported)", 
+                        println!(" Copied {} file: {} -> {} (Phone filesystem: move not supported)", 
                                  subfolder.to_uppercase(), 
                                  source_path.display(), 
                                  final_target.display());
                     },
                     Err(_) => {
                         // If both fail, create detection record in local temp folder
-                        println!("📱 Phone filesystem: Creating local detection record");
+                        println!(" Phone filesystem: Creating local detection record");
                         
                         let local_detection_folder = std::env::temp_dir().join("tiktok_detection_results").join(subfolder);
                         if let Err(_) = fs::create_dir_all(&local_detection_folder) {
-                            println!("📱 Detected {} TikTok file: {} ({}% confidence)", 
+                            println!(" Detected {} TikTok file: {} ({}% confidence)", 
                                      subfolder.to_uppercase(), 
                                      source_path.file_name().unwrap().to_string_lossy(),
                                      confidence);
@@ -486,14 +486,14 @@ impl FileManager {
         // Try to copy the file, but handle MTP/phone filesystem errors gracefully
         match fs::copy(source_path, &final_target) {
             Ok(_) => {
-                println!("📋 Copied {} file: {} -> {}", 
+                println!(" Copied {} file: {} -> {}", 
                          subfolder.to_uppercase(), 
                          source_path.display(), 
                          final_target.display());
             },
             Err(e) => {
                 // For phone/MTP filesystems, copying might not work
-                println!("� Would copy {} file: {} -> {} (Phone filesystem: copy not supported)", 
+                println!(" Would copy {} file: {} -> {} (Phone filesystem: copy not supported)", 
                          subfolder.to_uppercase(), 
                          source_path.display(), 
                          final_target.display());
@@ -531,14 +531,14 @@ impl FileManager {
         script_content.push_str("#!/bin/bash\n");
         script_content.push_str("# TikTok File Organization Script\n");
         script_content.push_str("# Generated by tiktok-cleaner\n\n");
-        script_content.push_str("echo \"🚀 Moving TikTok files to organized folders...\"\n\n");
+        script_content.push_str("echo \" Moving TikTok files to organized folders...\"\n\n");
         
         for (source, confidence_level, confidence_score) in moves {
             let filename = std::path::Path::new(source).file_name()
                 .unwrap_or_default().to_string_lossy();
             
             script_content.push_str(&format!(
-                "echo \"📁 Moving {} file: {} ({}% confidence)\"\n",
+                "echo \" Moving {} file: {} ({}% confidence)\"\n",
                 confidence_level.to_uppercase(),
                 filename,
                 confidence_score
@@ -554,8 +554,8 @@ impl FileManager {
             script_content.push_str("\n");
         }
         
-        script_content.push_str("echo \"✅ File organization complete!\"\n");
-        script_content.push_str("echo \"📁 Check the tiktok_detection folder for organized files\"\n");
+        script_content.push_str("echo \" File organization complete!\"\n");
+        script_content.push_str("echo \" Check the tiktok_detection folder for organized files\"\n");
         
         fs::write(&script_path, script_content)
             .context("Failed to create move script")?;
@@ -603,7 +603,7 @@ impl FileManager {
         }
         
         if !confirmed_files.is_empty() {
-            guide_content.push_str("### 🔴 Confirmed TikTok Files (70%+ confidence)\n");
+            guide_content.push_str("###  Confirmed TikTok Files (70%+ confidence)\n");
             guide_content.push_str("These files are almost certainly from TikTok:\n\n");
             for (filename, confidence) in confirmed_files {
                 guide_content.push_str(&format!("- `{}` ({}% confidence)\n", filename, confidence));
@@ -612,7 +612,7 @@ impl FileManager {
         }
         
         if !likely_files.is_empty() {
-            guide_content.push_str("### 🟡 Likely TikTok Files (40-69% confidence)\n");
+            guide_content.push_str("###  Likely TikTok Files (40-69% confidence)\n");
             guide_content.push_str("These files are probably from TikTok:\n\n");
             for (filename, confidence) in likely_files {
                 guide_content.push_str(&format!("- `{}` ({}% confidence)\n", filename, confidence));
@@ -621,7 +621,7 @@ impl FileManager {
         }
         
         if !possible_files.is_empty() {
-            guide_content.push_str("### 🔵 Possible TikTok Files (14-39% confidence)\n");
+            guide_content.push_str("###  Possible TikTok Files (14-39% confidence)\n");
             guide_content.push_str("These files might be from TikTok:\n\n");
             for (filename, confidence) in possible_files {
                 guide_content.push_str(&format!("- `{}` ({}% confidence)\n", filename, confidence));
@@ -653,7 +653,7 @@ impl FileManager {
         fs::write(&guide_path, guide_content)
             .context("Failed to create organization guide")?;
         
-        println!("📖 Created organization guide: {}", guide_path.display());
+        println!(" Created organization guide: {}", guide_path.display());
         println!("   Open this file for step-by-step manual organization instructions");
         
         Ok(())

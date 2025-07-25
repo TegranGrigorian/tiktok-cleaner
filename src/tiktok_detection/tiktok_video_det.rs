@@ -167,13 +167,13 @@ impl TikTokVideoDetector {
         let possible_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 14 && r.tiktok_analysis.confidence_score < 40).count();
         let unlikely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score < 14).count();
 
-        summary.push_str(&format!("📊 TikTok Video Detection Summary\n"));
+        summary.push_str(&format!(" TikTok Video Detection Summary\n"));
         summary.push_str(&format!("================================\n\n"));
         summary.push_str(&format!("Total videos analyzed: {}\n\n", total_files));
-        summary.push_str(&format!("🔴 Confirmed TikTok: {} videos\n", confirmed_tiktok));
-        summary.push_str(&format!("🟡 Likely TikTok: {} videos\n", likely_tiktok));
-        summary.push_str(&format!("🔵 Possible TikTok: {} videos\n", possible_tiktok));
-        summary.push_str(&format!("⚪ Unlikely TikTok: {} videos\n\n", unlikely_tiktok));
+        summary.push_str(&format!(" Confirmed TikTok: {} videos\n", confirmed_tiktok));
+        summary.push_str(&format!(" Likely TikTok: {} videos\n", likely_tiktok));
+        summary.push_str(&format!(" Possible TikTok: {} videos\n", possible_tiktok));
+        summary.push_str(&format!(" Unlikely TikTok: {} videos\n\n", unlikely_tiktok));
 
         if total_files > 0 {
             let detection_rate = ((confirmed_tiktok + likely_tiktok) as f64 / total_files as f64) * 100.0;
@@ -182,7 +182,7 @@ impl TikTokVideoDetector {
 
         // Show details for confirmed TikTok videos
         if confirmed_tiktok > 0 {
-            summary.push_str("🔴 Confirmed TikTok Videos:\n");
+            summary.push_str(" Confirmed TikTok Videos:\n");
             for result in results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 70) {
                 summary.push_str(&format!("  • {} ({})\n", result.filename, result.tiktok_analysis.verdict));
                 summary.push_str(&format!("    Confidence: {}/100\n", result.tiktok_analysis.confidence_score));
@@ -201,8 +201,8 @@ impl TikTokVideoDetector {
         println!("🎥 Analyzing Video: {}", metadata.filename);
         println!("{}", "=".repeat(60));
         
-        println!("🎯 RESULT: {}", metadata.tiktok_analysis.verdict);
-        println!("📊 Confidence: {}/100", metadata.tiktok_analysis.confidence_score);
+        println!(" RESULT: {}", metadata.tiktok_analysis.verdict);
+        println!(" Confidence: {}/100", metadata.tiktok_analysis.confidence_score);
         
         if !metadata.tiktok_analysis.evidence_found.is_empty() {
             println!("\n🔎 Evidence ({} items):", metadata.tiktok_analysis.evidence_found.len());
@@ -212,7 +212,7 @@ impl TikTokVideoDetector {
         }
 
         if !metadata.tiktok_analysis.indicators.is_empty() {
-            println!("\n📋 Key Identifiers:");
+            println!("\n Key Identifiers:");
             for (key, value) in &metadata.tiktok_analysis.indicators {
                 println!("   • {}: {}", key, value);
             }

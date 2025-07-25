@@ -245,7 +245,7 @@ impl TikTokScanner {
                         _ => { results.unlikely_tiktok += 1; ("", "UNLIKELY") },
                     };
 
-                    println!("📄 {}: {} {} TikTok (Confidence: {}/100)", 
+                    println!(" {}: {} {} TikTok (Confidence: {}/100)", 
                              file_path.file_name().unwrap().to_string_lossy(),
                              icon, category, confidence);
                     
@@ -370,9 +370,9 @@ impl TikTokScanner {
     }
 
     fn print_results(&self, results: &ScanResults, moved_files: bool) {
-        println!("🎯 SCAN RESULTS SUMMARY");
+        println!(" SCAN RESULTS SUMMARY");
         println!("{}", "=".repeat(50));
-        println!("📁 Scanned folder: {}", self.file_manager.get_base_path().display());
+        println!(" Scanned folder: {}", self.file_manager.get_base_path().display());
         println!("Total files analyzed: {}", results.total_files);
         if results.skipped_cached > 0 {
             println!("Files skipped (cached): {}", results.skipped_cached);
@@ -390,7 +390,7 @@ impl TikTokScanner {
             println!("📈 TikTok Detection Rate: {:.1}% ({} files)", detection_rate, total_detected);
             
             if moved_files {
-                println!("📁 Files moved to: {}", self.file_manager.get_tiktok_folder().display());
+                println!("Files moved to: {}", self.file_manager.get_tiktok_folder().display());
                 println!("   • confirmed/ - {} files", results.confirmed_tiktok);
                 println!("   • likely/ - {} files", results.likely_tiktok);
                 println!("   • possible/ - {} files", results.possible_tiktok);
@@ -403,7 +403,7 @@ impl TikTokScanner {
         }
 
         println!();
-        println!("💾 Cache updated: {}", self.file_manager.get_cache_stats().1);
+        println!(" Cache updated: {}", self.file_manager.get_cache_stats().1);
         println!("Total cached non-TikTok files: {}", self.file_manager.get_cache_stats().0);
     }
 }
