@@ -219,8 +219,21 @@ impl MetadataManager {
             verdict: String::new(),
         };
 
-        // Check for definitive TikTok markers
-        
+        // Exclusion: If metadata contains camera photo indicators, set confidence to -1000
+        let camera_keywords = ["Focal Length", "ISO", "Aperture"];
+        let is_camera_photo = strings_found.iter().any(|s| {
+            let lower = s.to_lowercase();
+            camera_keywords.iter().any(|kw| lower.contains(kw))
+        });
+        if is_camera_photo {
+            evidence.evidence_found.push("Camera photo metadata detected (focal length, ISO, or aperture)".to_string());
+            evidence.indicators.insert("camera_photo".to_string(), "excluded".to_string());
+            evidence.confidence_score = 0;
+            evidence.verdict = "EXCLUDED: Camera photo detected".to_string();
+            evidence.is_tiktok = false;
+            return evidence;
+        }
+
         // 1. Check for AIGC metadata in strings
         if strings_found.iter().any(|s| s.to_lowercase().contains("aigc_label_type")) {
             evidence.evidence_found.push("AIGC metadata found".to_string());
