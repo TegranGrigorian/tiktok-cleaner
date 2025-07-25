@@ -56,7 +56,7 @@ impl TestRunner {
         }
 
         let mut all_files = Vec::new();
-        
+
         // Analyze images
         match self.photo_detector.analyze_folder(folder_path) {
             Ok(mut image_files) => {
@@ -66,14 +66,31 @@ impl TestRunner {
             Err(e) => eprintln!("Error analyzing images: {}", e),
         }
 
-        // Analyze videos
-        match self.video_detector.analyze_folder(folder_path) {
-            Ok(mut video_files) => {
-                println!("🎥 Found {} video files", video_files.len());
-                all_files.append(&mut video_files);
+        // Analyze videos: scan for video files and run analyze_video on each
+        let video_extensions = ["mp4", "mov", "avi", "mkv", "flv", "webm"];
+        let video_files: Vec<_> = match std::fs::read_dir(folder_path) {
+            Ok(read_dir) => read_dir
+                .filter_map(|entry| entry.ok())
+                .map(|entry| entry.path())
+                .filter(|path| {
+                    path.is_file() && path.extension()
+                        .and_then(|ext| ext.to_str())
+                        .map(|ext| video_extensions.contains(&ext.to_lowercase().as_str()))
+                        .unwrap_or(false)
+                })
+                .collect(),
+            Err(_) => Vec::new(),
+        };
+
+        let mut detected_videos = Vec::new();
+        for video_path in video_files {
+            match self.video_detector.analyze_video(&video_path) {
+                Ok(video_metadata) => detected_videos.push(video_metadata),
+                Err(e) => eprintln!("Error analyzing video {}: {}", video_path.display(), e),
             }
-            Err(e) => eprintln!("Error analyzing videos: {}", e),
         }
+        println!("🎥 Found {} video files", detected_videos.len());
+        all_files.append(&mut detected_videos);
 
         let total_files = all_files.len();
         println!("📁 Total media files: {}\n", total_files);
@@ -91,7 +108,7 @@ impl TestRunner {
             let confidence_icon = match file.tiktok_analysis.confidence_score {
                 70.. => { confirmed_tiktok += 1; "🔴" },
                 40..=69 => { likely_tiktok += 1; "🟡" },
-                20..=39 => { possible_tiktok += 1; "🔵" },
+                14..=39 => { possible_tiktok += 1; "🔵" },
                 _ => { unlikely_tiktok += 1; "⚪" },
             };
 

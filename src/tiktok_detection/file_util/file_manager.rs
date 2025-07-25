@@ -285,7 +285,7 @@ impl FileManager {
         let subfolder = match confidence {
             70.. => "confirmed",
             40..=69 => "likely", 
-            20..=39 => "possible",
+            14..=39 => "possible",
             _ => "unlikely",
         };
 
@@ -470,7 +470,7 @@ impl FileManager {
         let subfolder = match confidence {
             70.. => "confirmed",
             40..=69 => "likely", 
-            20..=39 => "possible",
+            14..=39 => "possible",
             _ => "unlikely",
         };
 
@@ -597,7 +597,7 @@ impl FileManager {
             match *confidence {
                 70.. => confirmed_files.push((filename.to_string(), confidence)),
                 40..=69 => likely_files.push((filename.to_string(), confidence)),
-                20..=39 => possible_files.push((filename.to_string(), confidence)),
+                14..=39 => possible_files.push((filename.to_string(), confidence)),
                 _ => {} // Skip unlikely files
             }
         }
@@ -621,7 +621,7 @@ impl FileManager {
         }
         
         if !possible_files.is_empty() {
-            guide_content.push_str("### 🔵 Possible TikTok Files (20-39% confidence)\n");
+            guide_content.push_str("### 🔵 Possible TikTok Files (14-39% confidence)\n");
             guide_content.push_str("These files might be from TikTok:\n\n");
             for (filename, confidence) in possible_files {
                 guide_content.push_str(&format!("- `{}` ({}% confidence)\n", filename, confidence));

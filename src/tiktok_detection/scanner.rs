@@ -105,7 +105,7 @@ impl TikTokScanner {
             let (icon, category) = match confidence {
                 70.. => { results.confirmed_tiktok += 1; ("[CONFIRMED]", "CONFIRMED") },
                 40..=69 => { results.likely_tiktok += 1; ("[LIKELY]", "LIKELY") },
-                20..=39 => { results.possible_tiktok += 1; ("[POSSIBLE]", "POSSIBLE") },
+                14..=39 => { results.possible_tiktok += 1; ("[POSSIBLE]", "POSSIBLE") },
                 _ => { results.unlikely_tiktok += 1; ("[UNLIKELY]", "UNLIKELY") },
             };
 
@@ -121,7 +121,7 @@ impl TikTokScanner {
             }
 
             // Handle file based on detection result
-            if confidence >= 20 {
+            if confidence >= 14 {
                 // TikTok detected (possible, likely, or confirmed)
                 if move_files {
                     match self.file_manager.move_file_to_tiktok_folder(file_path, confidence) {
@@ -241,7 +241,7 @@ impl TikTokScanner {
                     let (icon, category) = match confidence {
                         70.. => { results.confirmed_tiktok += 1; ("", "CONFIRMED") },
                         40..=69 => { results.likely_tiktok += 1; ("", "LIKELY") },
-                        20..=39 => { results.possible_tiktok += 1; ("", "POSSIBLE") },
+                        14..=39 => { results.possible_tiktok += 1; ("", "POSSIBLE") },
                         _ => { results.unlikely_tiktok += 1; ("", "UNLIKELY") },
                     };
 
@@ -259,7 +259,7 @@ impl TikTokScanner {
                     }
 
                     // Handle file based on detection result
-                    if confidence >= 20 {
+                    if confidence >= 14 {
                         // TikTok detected (possible, likely, or confirmed)
                         if move_files {
                             match self.file_manager.move_file_to_tiktok_folder(file_path, confidence) {

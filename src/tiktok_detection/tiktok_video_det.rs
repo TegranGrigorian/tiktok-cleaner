@@ -39,12 +39,40 @@ impl TikTokVideoDetector {
                 additional_score += 30;
             }
 
-            // Check for vertical video format (9:16 ratio)
+            // Bonus for exact TikTok preferred dimensions
+            if (width, height) == (576, 1024) || (width, height) == (1080, 1920) {
+                additional_evidence.push("Exact TikTok preferred video dimensions".to_string());
+                additional_score += 15;
+            }
+
             if let Some(ratio) = metadata.aspect_ratio {
+                // Relaxed: portrait if width < height, or aspect ratio < 0.8
+                if width < height {
+                    additional_evidence.push("Portrait orientation (width < height)".to_string());
+                    additional_score += 10;
+                }
                 if (0.55..=0.58).contains(&ratio) {
                     additional_evidence.push("Vertical mobile video format (9:16)".to_string());
                     additional_score += 20;
+                } else if ratio < 0.8 {
+                    additional_evidence.push(format!("Portrait aspect ratio: {:.3}", ratio));
+                    additional_score += 8;
                 }
+            }
+        }
+
+        // Check for TikTok-specific strings in metadata
+        // Check for TikTok-specific video characteristics
+        if let Some((width, height)) = metadata.dimensions {
+            // TikTok's standard video dimensions
+            let tiktok_video_dimensions = [
+                (576, 1024), (576, 1246), (576, 1280),
+                (720, 1280), (1080, 1920),
+            ];
+
+            if tiktok_video_dimensions.contains(&(width, height)) {
+                additional_evidence.push(format!("TikTok standard video dimensions: {}x{}", width, height));
+                additional_score += 30;
             }
 
             // Bonus for exact TikTok preferred dimensions
@@ -52,40 +80,59 @@ impl TikTokVideoDetector {
                 additional_evidence.push("Exact TikTok preferred video dimensions".to_string());
                 additional_score += 15;
             }
-        }
 
+            if let Some(ratio) = metadata.aspect_ratio {
+                // Relaxed: portrait if width < height, or aspect ratio < 0.8
+                if width < height {
+                    additional_evidence.push("Portrait orientation (width < height)".to_string());
+                    additional_score += 10;
+                }
+                if (0.55..=0.58).contains(&ratio) {
+                    additional_evidence.push("Vertical mobile video format (9:16)".to_string());
+                    additional_score += 20;
+                } else if ratio < 0.8 {
+                    additional_evidence.push(format!("Portrait aspect ratio: {:.3}", ratio));
+                    additional_score += 8;
+                }
+            }
+        }
+        let filename = &metadata.filename;
         // Check for TikTok-specific strings in metadata
         let tiktok_specific_strings = [
             "ByteDance",
-            "TikTok",
+            "Lavf58.76.100", // Common TikTok encoder
+            "Lavf", // General FFmpeg encoder, TikTok often uses Lavf*
+            "mp4v", // TikTok encoder
+            "isom", // TikTok encoder
             "Douyin",
             "Musical.ly",
             "aigc_info",
             "vid_md5",
-            "Lavf58.76.100", // Common TikTok encoder
         ];
-
         for string in &metadata.strings_found {
             for tiktok_string in &tiktok_specific_strings {
                 if string.to_lowercase().contains(&tiktok_string.to_lowercase()) {
                     additional_evidence.push(format!("TikTok-specific metadata: {}", tiktok_string));
-                    additional_score += match *tiktok_string {
+                    additional_score += match tiktok_string.as_ref() {
                         "aigc_info" => 40,
                         "vid_md5" => 35,
-                        "ByteDance" | "TikTok" | "Douyin" => 25,
-                        "Lavf58.76.100" => 15,
+                        "ByteDance" => 25,
+                        "TikTok" => 25,
+                        "Douyin" => 25,
+                        "Lavf58.76.100" => 20,
+                        "Lavf" => 10,
+                        "mp4v" => 8,
+                        "isom" => 8,
+                        "Musical.ly" => 8,
                         _ => 10,
                     };
                     break;
                 }
             }
         }
-
-        // Check file naming patterns typical of TikTok downloads
-        let filename = &metadata.filename;
-        if filename.starts_with("Download") && filename.ends_with(".mp4") {
-            additional_evidence.push("TikTok download naming pattern".to_string());
-            additional_score += 10;
+        if filename.to_lowercase().starts_with("download") && filename.to_lowercase().ends_with(".mp4") {
+            additional_evidence.push("TikTok download naming pattern (Download*.mp4)".to_string());
+            additional_score += 25; // Boosted from 10 to 25
         }
 
         // Check for reasonable file size (TikTok videos are typically 1-50MB)
@@ -105,28 +152,10 @@ impl TikTokVideoDetector {
         } else if metadata.tiktok_analysis.confidence_score >= 40 {
             metadata.tiktok_analysis.is_tiktok = true;
             metadata.tiktok_analysis.verdict = "LIKELY: Strong evidence suggests TikTok origin".to_string();
-        } else if metadata.tiktok_analysis.confidence_score >= 20 {
+        } else if metadata.tiktok_analysis.confidence_score >= 14 {
+            metadata.tiktok_analysis.is_tiktok = true;
             metadata.tiktok_analysis.verdict = "POSSIBLE: Some TikTok-like characteristics found".to_string();
         }
-    }
-
-    pub fn analyze_folder(&self, folder_path: &Path) -> Result<Vec<FileMetadata>> {
-        let results = self.metadata_manager.analyze_folder(folder_path)?;
-        
-        // Filter for videos only
-        let video_extensions = ["mp4", "mov", "avi", "mkv", "flv", "webm"];
-        let video_results: Vec<FileMetadata> = results.into_iter()
-            .filter(|metadata| {
-                if let Some(ext) = Path::new(&metadata.filename).extension() {
-                    let ext_str = ext.to_str().unwrap_or("").to_lowercase();
-                    video_extensions.contains(&ext_str.as_str())
-                } else {
-                    false
-                }
-            })
-            .collect();
-
-        Ok(video_results)
     }
 
     pub fn generate_summary(&self, results: &[FileMetadata]) -> String {
@@ -135,8 +164,8 @@ impl TikTokVideoDetector {
         let total_files = results.len();
         let confirmed_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 70).count();
         let likely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 40 && r.tiktok_analysis.confidence_score < 70).count();
-        let possible_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 20 && r.tiktok_analysis.confidence_score < 40).count();
-        let unlikely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score < 20).count();
+        let possible_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 14 && r.tiktok_analysis.confidence_score < 40).count();
+        let unlikely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score < 14).count();
 
         summary.push_str(&format!("📊 TikTok Video Detection Summary\n"));
         summary.push_str(&format!("================================\n\n"));

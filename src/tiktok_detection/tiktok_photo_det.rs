@@ -74,7 +74,8 @@ impl TikTokPhotoDetector {
         } else if metadata.tiktok_analysis.confidence_score >= 40 {
             metadata.tiktok_analysis.is_tiktok = true;
             metadata.tiktok_analysis.verdict = "LIKELY: Strong evidence suggests TikTok origin".to_string();
-        } else if metadata.tiktok_analysis.confidence_score >= 20 {
+        } else if metadata.tiktok_analysis.confidence_score >= 14 {
+            metadata.tiktok_analysis.is_tiktok = true;
             metadata.tiktok_analysis.verdict = "POSSIBLE: Some TikTok-like characteristics found".to_string();
         }
     }
@@ -104,8 +105,8 @@ impl TikTokPhotoDetector {
         let total_files = results.len();
         let confirmed_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 70).count();
         let likely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 40 && r.tiktok_analysis.confidence_score < 70).count();
-        let possible_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 20 && r.tiktok_analysis.confidence_score < 40).count();
-        let unlikely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score < 20).count();
+        let possible_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score >= 14 && r.tiktok_analysis.confidence_score < 40).count();
+        let unlikely_tiktok = results.iter().filter(|r| r.tiktok_analysis.confidence_score < 14).count();
 
         summary.push_str(&format!("📊 TikTok Photo Detection Summary\n"));
         summary.push_str(&format!("================================\n\n"));
