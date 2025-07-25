@@ -387,7 +387,7 @@ impl TikTokScanner {
         let total_detected = results.confirmed_tiktok + results.likely_tiktok + results.possible_tiktok;
         if total_detected > 0 {
             let detection_rate = (total_detected as f64 / results.total_files as f64) * 100.0;
-            println!("📈 TikTok Detection Rate: {:.1}% ({} files)", detection_rate, total_detected);
+            println!(" TikTok Detection Rate: {:.1}% ({} files)", detection_rate, total_detected);
             
             if moved_files {
                 println!("Files moved to: {}", self.file_manager.get_tiktok_folder().display());
